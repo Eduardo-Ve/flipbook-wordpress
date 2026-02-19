@@ -6,13 +6,14 @@
  * Author: Eduardo Velasquez
  * Author URI: https://github.com/Eduardo-Ve
  * License: GPL2
- * Update UR: https://
+ * Update UR: https://github.com/Eduardo-Ve/flipbook-wordpress/
  * Requires PHP: 7.4
  */
 
 if (!defined('ABSPATH')) {
     exit;
 }
+
 
 define('FBW_VERSION', '2.2');
 define('FBW_PLUGIN_DIR', plugin_dir_path(__FILE__));
