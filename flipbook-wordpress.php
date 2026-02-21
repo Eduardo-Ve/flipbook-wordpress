@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Flipbook PDF WordPress - Compresión
  * Description: Este plugin se encarga de que al subir un PDF a WordPress, se comprima reduciendo su tamaño sin perder calidad visual. Ideal para flipbooks.
- * Version: 3.1
+ * Version: 3.2
  * Author: Eduardo Velasquez
  * Author URI: https://github.com/Eduardo-Ve
  * License: GPL2
@@ -87,7 +87,7 @@ add_filter('puc_request_info_result-flipbook-wordpress', function ($info, $resul
     return $info;
 }, 10, 2);
 
-define('FBW_VERSION', '3.1');
+define('FBW_VERSION', '3.2');
 define('FBW_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('FBW_PLUGIN_URL', plugin_dir_url(__FILE__));
 
