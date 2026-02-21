@@ -14,9 +14,19 @@
 if (!defined('ABSPATH')) {
     exit;
 }
+require 'plugin-update-checker/plugin-update-checker.php';
 
+use YahnisElsts\PluginUpdateChecker\v5\PucFactory;
 
-define('FBW_VERSION', '2.2');
+$updateChecker = PucFactory::buildUpdateChecker(
+    'https://github.com/Eduardo-Ve/flipbook-wordpress',
+    __FILE__,
+    'flipbook-wordpress'
+);
+
+$updateChecker->setBranch('main');
+
+define('FBW_VERSION', '3.1');
 define('FBW_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('FBW_PLUGIN_URL', plugin_dir_url(__FILE__));
 
