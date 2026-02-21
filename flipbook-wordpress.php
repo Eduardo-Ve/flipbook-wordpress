@@ -23,7 +23,9 @@ $updateChecker = PucFactory::buildUpdateChecker(
     __FILE__,
     'flipbook-wordpress'
 );
-
+/*
+Prueba de actualización: 
+*/
 $updateChecker->setBranch('main');
 
 define('FBW_VERSION', '3.1');
