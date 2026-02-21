@@ -23,7 +23,6 @@ $updateChecker = PucFactory::buildUpdateChecker(
     'flipbook-wordpress'
 );
 
-// ✅ Updates + changelog desde GitHub Releases
 $updateChecker->getVcsApi()->enableReleaseAssets();
 
 add_filter('puc_request_info_result-flipbook-wordpress', function ($info, $result) {
@@ -32,9 +31,9 @@ add_filter('puc_request_info_result-flipbook-wordpress', function ($info, $resul
         $info->sections = [];
     }
 
-    // ============
+    // 
     // DESCRIPCIÓN desde README.md (Markdown -> HTML)
-    // ============
+    // 
     $cacheKey = 'fbw_readme_html_v1';
     $readmeHtml = get_transient($cacheKey);
 
@@ -49,9 +48,13 @@ add_filter('puc_request_info_result-flipbook-wordpress', function ($info, $resul
             if (file_exists($parserPath)) {
                 require_once $parserPath;
                 $parsedown = new Parsedown();
-                $parsedown->setSafeMode(true);
 
-                $readmeHtml = $parsedown->text($md);
+                if (method_exists($parsedown, 'setSafeMode')) {
+                    $parsedown->setSafeMode(true);
+                }
+
+                $html = $parsedown->text($md);
+                $readmeHtml = wp_kses_post($html);
             } else {
                 $readmeHtml = '<pre style="white-space:pre-wrap;">' . esc_html($md) . '</pre>';
             }
