@@ -6,8 +6,9 @@
  * Author: Eduardo Velasquez
  * Author URI: https://github.com/Eduardo-Ve
  * License: GPL2
- * Update UR: https://github.com/Eduardo-Ve/flipbook-wordpress/
+ * Update URI: https://github.com/Eduardo-Ve/flipbook-wordpress/
  * Requires PHP: 7.4
+ * Plugin URI: https://contraplano.cl/
  */
 
 if (!defined('ABSPATH')) {
@@ -61,6 +62,11 @@ add_action('admin_init', function () {
         'default' => 50,
         'sanitize_callback' => 'absint'
     ]);
+    register_setting('fbw_settings_group', 'fbw_min_file_size', [
+    'type' => 'integer',
+    'default' => 1,
+    'sanitize_callback' => 'absint'
+    ]);
 });
 
 function fbw_render_settings_page() {
@@ -69,6 +75,9 @@ function fbw_render_settings_page() {
     $compression_enabled = get_option('fbw_compression_enabled', true);
     $compression_level = get_option('fbw_compression_level', 'recommended');
     $max_file_size = get_option('fbw_max_file_size', 50);
+    $min_file_size = get_option('fbw_min_file_size', 1);
+
+
     
     $stats = get_option('fbw_compression_stats', [
         'total_compressions' => 0,
@@ -201,6 +210,20 @@ function fbw_render_settings_page() {
                         </p>
                     </td>
                 </tr>
+                <th scope="row">Tamaño Mínimo</th>
+<td>
+    <input 
+        type="number" 
+        name="fbw_min_file_size"
+        value="<?php echo esc_attr($min_file_size); ?>"
+        min="1"
+        max="200"
+        style="width: 100px;"
+    /> MB
+    <p class="description">
+        PDFs menores a este tamaño no se comprimirán
+    </p>
+</td>
             </table>
             
             <?php submit_button('Guardar Configuración'); ?>
@@ -328,12 +351,12 @@ function fbw_compress_pdf_with_ilovepdf($upload) {
     $original_size = filesize($original_file);
     
     // Verificar límite de tamaño
-    $max_size = get_option('fbw_max_file_size', 50) * 1024 * 1024;
-    if ($original_size > $max_size) {
+    $min_size = get_option('fbw_min_file_size', 1) * 1024 * 1024;
+    if ($original_size < $min_size) {
         error_log(sprintf(
-            'FBW: PDF demasiado grande (%s) - Límite: %s',
+            'FBW: PDF demasiado pequeño (%s) - Mínimo: %s',
             size_format($original_size),
-            size_format($max_size)
+            size_format($min_size)
         ));
         return $upload;
     }
