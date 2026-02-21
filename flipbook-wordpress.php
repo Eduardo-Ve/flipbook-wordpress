@@ -11,10 +11,9 @@
  * Plugin URI: https://contraplano.cl/
  */
 
-if (!defined('ABSPATH')) {
-    exit;
-}
-require 'plugin-update-checker/plugin-update-checker.php';
+if (!defined('ABSPATH')) exit;
+
+require_once __DIR__ . '/plugin-update-checker/plugin-update-checker.php';
 
 use YahnisElsts\PluginUpdateChecker\v5\PucFactory;
 
@@ -23,10 +22,67 @@ $updateChecker = PucFactory::buildUpdateChecker(
     __FILE__,
     'flipbook-wordpress'
 );
-/*
-Prueba de actualización: 
-*/
-$updateChecker->setBranch('main');
+
+// ✅ Updates + changelog desde GitHub Releases
+$updateChecker->getVcsApi()->enableReleaseAssets();
+
+add_filter('puc_request_info_result-flipbook-wordpress', function ($info, $result) {
+
+    if (!isset($info->sections) || !is_array($info->sections)) {
+        $info->sections = [];
+    }
+
+    // ============
+    // DESCRIPCIÓN desde README.md (Markdown -> HTML)
+    // ============
+    $cacheKey = 'fbw_readme_html_v1';
+    $readmeHtml = get_transient($cacheKey);
+
+    if ($readmeHtml === false) {
+        $readmeUrl = 'https://raw.githubusercontent.com/Eduardo-Ve/flipbook-wordpress/main/README.md';
+        $res = wp_remote_get($readmeUrl, ['timeout' => 8]);
+
+        if (!is_wp_error($res) && wp_remote_retrieve_response_code($res) === 200) {
+            $md = wp_remote_retrieve_body($res);
+
+            $parserPath = __DIR__ . '/lib/Parsedown.php';
+            if (file_exists($parserPath)) {
+                require_once $parserPath;
+                $parsedown = new Parsedown();
+                $parsedown->setSafeMode(true);
+
+                $readmeHtml = $parsedown->text($md);
+            } else {
+                $readmeHtml = '<pre style="white-space:pre-wrap;">' . esc_html($md) . '</pre>';
+            }
+
+            set_transient($cacheKey, $readmeHtml, 6 * HOUR_IN_SECONDS);
+        } else {
+            $readmeHtml = '<p>No se pudo cargar el README desde GitHub.</p>';
+        }
+    }
+
+    $info->sections['description'] = $readmeHtml;
+
+    // ============
+    // CHANGELOG desde Release (body)
+    // ============
+    $changelog = '';
+
+    if (!empty($info->upgrade_notice)) {
+        $changelog = $info->upgrade_notice;
+    } elseif (!empty($info->changelog)) {
+        $changelog = $info->changelog;
+    }
+
+    if (!empty($changelog)) {
+        $info->sections['changelog'] = wp_kses_post(nl2br($changelog));
+    } else {
+        $info->sections['changelog'] = '<p>Aún no hay historial de cambios publicado. Crea un GitHub Release para la versión nueva.</p>';
+    }
+
+    return $info;
+}, 10, 2);
 
 define('FBW_VERSION', '3.1');
 define('FBW_PLUGIN_DIR', plugin_dir_path(__FILE__));
