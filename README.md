@@ -230,19 +230,8 @@ Compatible con WP Super Cache, W3 Total Cache, WP Rocket y Autoptimize. No requi
 
 ---
 
-## Changelog
-
-### v3.0
-- Migración de Ghostscript a la **API de iLovePDF** para compresión en la nube.
-- Nuevos niveles de compresión: Baja, Recomendada y Extrema.
-- Panel de estadísticas de compresión en el área de ajustes.
-- Botón de compresión manual en la Biblioteca de Medios.
-- Columna de estado de compresión en la lista de medios.
-- Indicador de estado de conexión con la API.
-
----
-
 ## Autor
 
 **Eduardo Velasquez**  
+[github.com](https://github.com/Eduardo-Ve/)
 [contraplano.cl](https://contraplano.cl)
