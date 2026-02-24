@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Flipbook PDF WordPress - Compresión
  * Description: Este plugin se encarga de que al subir un PDF a WordPress, se comprima reduciendo su tamaño sin perder calidad visual. Ideal para flipbooks.
- * Version: 3.3
+ * Version: 3.4
  * Author: Eduardo Velasquez
  * Author URI: https://github.com/Eduardo-Ve
  * License: GPL2
@@ -67,27 +67,54 @@ add_filter('puc_request_info_result-flipbook-wordpress', function ($info, $resul
 
     $info->sections['description'] = $readmeHtml;
 
+// ============
+    // CHANGELOG desde GitHub Release (body)
     // ============
-    // CHANGELOG desde Release (body)
-    // ============
-    $changelog = '';
+    $changelogCacheKey = 'fbw_changelog_v1';
+    $changelog = get_transient($changelogCacheKey);
 
-    if (!empty($info->upgrade_notice)) {
-        $changelog = $info->upgrade_notice;
-    } elseif (!empty($info->changelog)) {
-        $changelog = $info->changelog;
+    if ($changelog === false) {
+        $apiUrl = 'https://api.github.com/repos/Eduardo-Ve/flipbook-wordpress/releases/latest';
+        $res = wp_remote_get($apiUrl, [
+            'timeout' => 8,
+            'headers' => [
+                'Accept'     => 'application/vnd.github+json',
+                'User-Agent' => 'WordPress/' . get_bloginfo('version'),
+            ]
+        ]);
+
+        if (!is_wp_error($res) && wp_remote_retrieve_response_code($res) === 200) {
+            $data = json_decode(wp_remote_retrieve_body($res), true);
+            $body = $data['body'] ?? '';
+
+            if (!empty($body)) {
+                $parserPath = __DIR__ . '/lib/Parsedown.php';
+                if (file_exists($parserPath)) {
+                    require_once $parserPath;
+                    $parsedown = new Parsedown();
+                    if (method_exists($parsedown, 'setSafeMode')) {
+                        $parsedown->setSafeMode(true);
+                    }
+                    $changelog = wp_kses_post($parsedown->text($body));
+                } else {
+                    $changelog = '<pre style="white-space:pre-wrap;">' . esc_html($body) . '</pre>';
+                }
+            } else {
+                $changelog = '<p>Este release no tiene descripción.</p>';
+            }
+        } else {
+            $changelog = '<p>No se pudo cargar el changelog desde GitHub.</p>';
+        }
+
+        set_transient($changelogCacheKey, $changelog, 6 * HOUR_IN_SECONDS);
     }
 
-    if (!empty($changelog)) {
-        $info->sections['changelog'] = wp_kses_post(nl2br($changelog));
-    } else {
-        $info->sections['changelog'] = '<p>Aún no hay historial de cambios publicado..</p>';
-    }
+    $info->sections['changelog'] = $changelog;
 
     return $info;
 }, 10, 2);
 
-define('FBW_VERSION', '3.3');
+define('FBW_VERSION', '3.4');
 define('FBW_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('FBW_PLUGIN_URL', plugin_dir_url(__FILE__));
 
