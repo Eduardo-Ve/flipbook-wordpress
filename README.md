@@ -141,28 +141,6 @@ Los PDFs ya comprimidos muestran su porcentaje de ahorro en la columna **"Compre
 
 ---
 
-## Personalización
-
-### Colores de los botones de navegación
-
-Edita `/assets/css/flipbook.css`:
-
-```css
-.fbw-prev,
-.fbw-next {
-  background: #2c7570; /* Tu color aquí */
-}
-```
-
-### Dimensiones del contenedor
-
-```css
-.fbw-flipbook-container {
-  min-height: 900px;
-  height: 900px;
-}
-```
-
 ### Dimensiones recomendadas por formato
 
 | Formato | Ancho | Alto |
