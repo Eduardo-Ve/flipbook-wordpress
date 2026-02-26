@@ -108,7 +108,7 @@ if (is_admin()) {
     }, 10, 2);
 }
 
-define('FBW_VERSION', '3.4');
+define('FBW_VERSION', '3.5');
 define('FBW_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('FBW_PLUGIN_URL', plugin_dir_url(__FILE__));
 
